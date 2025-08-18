@@ -153,6 +153,99 @@ function gpo-open() {
   /run/current-system/sw/bin/xdg-open "$final_url"
 }
 
+# Usage:
+# sync-jss-to ~/jss/web/src/lib/ui-library
+# sync-jss-to --force ~/jss/web/src/lib/ui-library
+function sync-jss-to() {
+  RED='\033[0;31m'
+  GREEN='\033[0;32m'
+  YELLOW='\033[1;33m'
+  BLUE='\033[0;34m'
+  NC='\033[0m' # No Color
+
+  FORCE=0
+  if [[ "$1" == "--force" ]]; then
+    FORCE=1
+    shift
+  fi
+
+  dir_to_sync_to="$1"
+
+  if [[ -z "$dir_to_sync_to" ]]; then
+    echo -e "${RED}Error: No target directory provided.${NC}"
+    return 1
+  fi
+
+  strip_git_suffix() {
+    echo "$1" | sed 's/\.git$//'
+  }
+
+  normalize_path() {
+    echo "$1" | sed 's:/*$::'
+  }
+
+  # Get remote URL of the repo to sync from
+  if ! cd "$dir_to_sync_to"; then
+    echo -e "${RED}Error: Could not access directory to sync from: $dir_to_sync_to${NC}"
+    return 1
+  fi
+  source_remote_url=$(git config --get remote.origin.url)
+  if [[ -z "$source_remote_url" ]]; then
+    echo -e "${RED}Error: No remote.origin.url found in $dir_to_sync_to${NC}"
+    return 1
+  fi
+
+  work() {
+    dir="$1"
+    if cd "$dir"; then
+      local_remote_url=$(git config --get remote.origin.url)
+      local_url_clean=$(strip_git_suffix "$local_remote_url")
+      source_url_clean=$(strip_git_suffix "$source_remote_url")
+
+      if [[ "$local_url_clean" != "$source_url_clean" ]]; then
+        echo -e "${RED}Error: Remote URL mismatch in $dir.${NC}"
+        echo -e "  Expected: $source_url_clean"
+        echo -e "  Found:    $local_url_clean"
+        return 1
+      fi
+
+      if [[ $FORCE -eq 1 ]]; then
+        echo -e "${YELLOW}Force syncing (fetch + reset --hard) in $dir...${NC}"
+        if git fetch "$dir_to_sync_to" && git reset --hard FETCH_HEAD; then
+          echo -e "${GREEN}Force sync successful: $dir${NC}"
+        else
+          echo -e "${RED}Error: Force sync failed in $dir${NC}"
+          return 1
+        fi
+      else
+        echo -e "${BLUE}Pulling updates in $dir...${NC}"
+        if git pull "$dir_to_sync_to"; then
+          echo -e "${GREEN}Successfully synced: $dir${NC}"
+        else
+          echo -e "${RED}Error: git pull failed in $dir${NC}"
+          return 1
+        fi
+      fi
+    else
+      echo -e "${RED}Error: Directory not found or inaccessible: $dir${NC}"
+      return 1
+    fi
+  }
+
+  target_normalized=$(normalize_path "$dir_to_sync_to")
+
+  work "$HOME/jss/ui-library" || return 1
+  for subdir in admin-ui web corporate; do
+    candidate="$HOME/jss/$subdir/src/lib/ui-library"
+    candidate_normalized=$(normalize_path "$candidate")
+    if [[ "$candidate_normalized" == "$target_normalized" ]]; then
+      echo -e "${YELLOW}Skipping sync for target directory itself: $candidate${NC}"
+      continue
+    fi
+    work "$candidate" || return 1
+  done
+}
+
 function sync-jss() {
   RED='\033[0;31m'
   GREEN='\033[0;32m'
@@ -244,4 +337,17 @@ function sync_current_repo_to_github() {
   git push -u origin main || echo "⚠️  Push failed (maybe already pushed)"
 
   echo "✅ Done: $REPO_NAME"
+}
+
+tscfedit() {
+  local tmpfile=$(mktemp)
+  tsc --noEmit > "$tmpfile"
+  local files
+  files=($(grep -oE '^src/[^(]+' "$tmpfile" | sort -u))
+  if (( ${#files[@]} )); then
+    nvim "${files[@]}"
+  else
+    echo "No TS errors found."
+  fi
+  rm -f "$tmpfile"
 }
