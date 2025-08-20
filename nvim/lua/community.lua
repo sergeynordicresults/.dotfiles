@@ -93,4 +93,6 @@ return {
   { "kevinhwang91/nvim-ufo", branch = "main", version = false, rev = "c96bb3bb853ff6253fe74f057df03e61fafd2403" },
   -- { "kevinhwang91/nvim-ufo", branch = "main" },
   { 'danilamihailov/beacon.nvim' },
+
+  { import = "astrocommunity.recipes.ai" },
 }

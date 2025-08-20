@@ -31,8 +31,8 @@
     # fix-github-https-repo.flake = false;
     # image_optim.url = "github:toy/image_optim";
     # image_optim.flake = false;
-    # easy-purescript-nix-automatic.url = "github:srghma/easy-purescript-nix-automatic";
-    # easy-purescript-nix-automatic.flake = false;
+    easy-purescript-nix-automatic.url = "github:srghma-old/easy-purescript-nix-automatic";
+    easy-purescript-nix-automatic.flake = false;
     purescript-overlay.url = "github:thomashoneyman/purescript-overlay";
     purescript-overlay.inputs.nixpkgs.follows = "nixpkgs";
     # Idris2.url = "git+file:/home/srghma/projects/Idris2";
@@ -83,6 +83,9 @@
               i3-battery-popup = pkgs.callPackage ./nixos/pkgs/i3-battery-popup { };
               switch_touchpad = pkgs.callPackage ./nixos/pkgs/switch_touchpad { };
               purescript-overlay = inputs.purescript-overlay.packages.${system};
+              easy-purescript-nix-automatic = import inputs.easy-purescript-nix-automatic {
+                inherit pkgs;
+              };
             in
             {
               environment.systemPackages = with nixpkgs.pkgs; [
@@ -365,11 +368,11 @@
                 # neuromore
 
                 # nix profile install github:justinwoo/easy-purescript-nix#spago
-                # (writeShellScriptBin "spago-migrate" "${easy-purescript-nix-automatic.spago}/bin/spago migrate")
+                (writeShellScriptBin "spago-migrate" "${easy-purescript-nix-automatic.spago}/bin/spago migrate")
                 (writeShellScriptBin "ru" "${xorg.xkbcomp}/bin/xkbcomp -w /home/srghma/.dotfiles/layouts/en_ru_swapped $DISPLAY")
                 (writeShellScriptBin "ua" "${xorg.xkbcomp}/bin/xkbcomp -w /home/srghma/.dotfiles/layouts/en_ua_swapped $DISPLAY")
 
-                # purescript-overlay.spago-unstable
+                purescript-overlay.spago-unstable
                 purescript-overlay.purs
 
                 # npm install -g purs-tidy purs-backend-es spago@next

@@ -15,6 +15,22 @@
         "type": "github"
       }
     },
+    "easy-purescript-nix-automatic": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1728095055,
+        "narHash": "sha256-ppZE1aPRoguvCqBdU1mM3LwsVpbWfUVPrnx7v/uHgOQ=",
+        "owner": "srghma-old",
+        "repo": "easy-purescript-nix-automatic",
+        "rev": "1ec4b01c5f4323ea17f70e86464ae6e3a35c66f1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "srghma-old",
+        "repo": "easy-purescript-nix-automatic",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "flake": false,
       "locked": {
@@ -179,6 +195,7 @@
     },
     "root": {
       "inputs": {
+        "easy-purescript-nix-automatic": "easy-purescript-nix-automatic",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs",
         "nixpkgsMaster": "nixpkgsMaster",
