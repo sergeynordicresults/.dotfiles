@@ -137,19 +137,19 @@ return {
       end, copied_items)
 
       local final_output = table.concat(vim.tbl_map(function(e) return e.formatted end, entries), "\n")
-      local copied_paths = vim.tbl_map(function(e) return e.path end, entries)
 
-      local tmpfile = "/tmp/chatgpt-files.txt"
-      if not write_string_to_file(tmpfile, final_output) then
-        vim.notify("Failed to open temporary file for writing", vim.log.levels.ERROR)
-        return
-      end
+      -- local tmpfile = "/tmp/chatgpt-files.txt"
+      -- if not write_string_to_file(tmpfile, final_output) then
+      --   vim.notify("Failed to open temporary file for writing", vim.log.levels.ERROR)
+      --   return
+      -- end
 
-      local result = vim.fn.system({ "copyq", "copy", "--", tmpfile })
+      local result = vim.fn.system({ "copyq", "add", "-" }, final_output)
 
       if vim.v.shell_error ~= 0 then
         vim.notify("copyq failed:\n" .. result, vim.log.levels.ERROR)
       else
+        local copied_paths = vim.tbl_map(function(e) return e.path end, entries)
         vim.notify("Copied " .. #copied_paths .. " file(s):\n" .. table.concat(copied_paths, "\n"), vim.log.levels.INFO)
       end
     end

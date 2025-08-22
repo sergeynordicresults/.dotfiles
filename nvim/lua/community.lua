@@ -33,6 +33,8 @@ return {
   -- }
 
   { import = "astrocommunity.editing-support.auto-save-nvim" },
+  -- { import = "astrocommunity.pack.go" },
+  -- { import = "astrocommunity.pack.helm" },
   { import = "astrocommunity.pack.typescript" },
   -- { import = "astrocommunity.pack.nix" },
   { import = "astrocommunity.bars-and-lines.vim-illuminate" },
